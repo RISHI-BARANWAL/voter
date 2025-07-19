@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import {
   Plus,
   Edit,
@@ -9,11 +9,11 @@ import {
   Search,
   Filter,
   UserCheck,
-  UserX
-} from 'lucide-react';
+  UserX,
+} from "lucide-react";
 
-interface User { 
-  id?: number;  //....new added ? | string for compatibility. 
+interface User {
+  id?: number; //....new added ? | string for compatibility.
   _id: number; // Keep for backward compatibility  //....new added. _id: string | number;
   username: string;
   full_name: string;
@@ -31,22 +31,22 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
 
   const [formData, setFormData] = useState({
-    username: '',
-    full_name: '',
-    email: '',
-    mobile: '',
-    age: '',
-    address: '',
-    id_number: '',
-    dob: '',
-    password: '',
-    designation: '',
-    role: 'Karyakarta',
-    booth_access: '',
+    username: "",
+    full_name: "",
+    email: "",
+    mobile: "",
+    age: "",
+    address: "",
+    id_number: "",
+    dob: "",
+    password: "",
+    designation: "",
+    role: "Karyakarta",
+    booth_access: "",
   });
 
   useEffect(() => {
@@ -55,60 +55,60 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/users');
+      const response = await axios.get("/users");
       setUsers(response.data);
     } catch (error) {
-      toast.error('Failed to fetch users');
+      toast.error("Failed to fetch users");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent ) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       if (editingUser) {
-        await axios.put(`/users/${editingUser._id}`, formData);  //....new added id or _id
-        toast.success('User updated successfully');
+        await axios.put(`/users/${editingUser._id}`, formData); //....new added id or _id
+        toast.success("User updated successfully");
       } else {
-        await axios.post('/users', formData);   //....new added ${userId}
-        toast.success('User created successfully');
+        await axios.post("/users", formData); //....new added ${userId}
+        toast.success("User created successfully");
       }
-      
+
       fetchUsers();
       resetForm();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Operation failed');
+      toast.error(error.response?.data?.message || "Operation failed");
     }
   };
 
   const handleDelete = async (userId: number) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
-    
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
     try {
       await axios.delete(`/users/${userId}`);
-      toast.success('User deleted successfully');
+      toast.success("User deleted successfully");
       fetchUsers();
     } catch (error) {
-      toast.error('Failed to delete user');
+      toast.error("Failed to delete user");
     }
   };
 
   const resetForm = () => {
     setFormData({
-      username: '',
-      full_name: '',
-      email: '',
-      mobile: '',
-      age: '',
-      address: '',
-      id_number: '',
-      dob: '',
-      password: '',
-      designation: '',
-      role: 'Karyakarta',
-      booth_access: '',
+      username: "",
+      full_name: "",
+      email: "",
+      mobile: "",
+      age: "",
+      address: "",
+      id_number: "",
+      dob: "",
+      password: "",
+      designation: "",
+      role: "Karyakarta",
+      booth_access: "",
     });
     setShowAddModal(false);
     setEditingUser(null);
@@ -122,27 +122,28 @@ export default function UserManagement() {
       full_name: user.full_name,
       email: user.email,
       mobile: user.mobile,
-      age: '',
-      address: '',
-      id_number: '',
-      dob: '',
-      password: '',
-      designation: user.designation || '',
+      age: "",
+      address: "",
+      id_number: "",
+      dob: "",
+      password: "",
+      designation: user.designation || "",
       role: user.role,
-      booth_access: '',
+      booth_access: "",
     });
     setShowAddModal(true);
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.username.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = !roleFilter || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
-  const roles = ['Super Admin', 'Admin', 'Supervisor', 'Karyakarta'];
+  const roles = ["Super Admin", "Admin", "Supervisor", "Karyakarta"];
 
   if (loading) {
     return (
@@ -178,7 +179,7 @@ export default function UserManagement() {
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
+
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <select
@@ -187,8 +188,10 @@ export default function UserManagement() {
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">All Roles</option>
-              {roles.map(role => (
-                <option key={role} value={role}>{role}</option>
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
               ))}
             </select>
           </div>
@@ -223,22 +226,31 @@ export default function UserManagement() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsers.map((user) => (
-                <tr key={user.id || user._id} className="hover:bg-gray-50">  {/*....new added || user._id */}
+                <tr key={user.id || user._id} className="hover:bg-gray-50">
+                  {" "}
+                  {/*....new added || user._id */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">
                         {user.full_name}
                       </div>
-                      <div className="text-sm text-gray-500">@{user.username}</div>
+                      <div className="text-sm text-gray-500">
+                        @{user.username}
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      user.role === 'Super Admin' ? 'bg-red-100 text-red-800' :
-                      user.role === 'Admin' ? 'bg-purple-100 text-purple-800' :
-                      user.role === 'Supervisor' ? 'bg-blue-100 text-blue-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.role === "Super Admin"
+                          ? "bg-red-100 text-red-800"
+                          : user.role === "Admin"
+                          ? "bg-purple-100 text-purple-800"
+                          : user.role === "Supervisor"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
                       {user.role}
                     </span>
                   </td>
@@ -253,16 +265,19 @@ export default function UserManagement() {
                       ) : (
                         <UserX className="h-5 w-5 text-red-500" />
                       )}
-                      <span className={`ml-2 text-sm ${user.is_active ? 'text-green-700' : 'text-red-700'}`}>
-                        {user.is_active ? 'Active' : 'Inactive'}
+                      <span
+                        className={`ml-2 text-sm ${
+                          user.is_active ? "text-green-700" : "text-red-700"
+                        }`}
+                      >
+                        {user.is_active ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.last_login 
+                    {user.last_login
                       ? new Date(user.last_login).toLocaleDateString()
-                      : 'Never'
-                    }
+                      : "Never"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
@@ -273,7 +288,7 @@ export default function UserManagement() {
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(user.id || user._id)}  //....new added
+                        onClick={() => handleDelete(user.id || user._id)} //....new added
                         className="text-red-600 hover:text-red-900"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -293,7 +308,7 @@ export default function UserManagement() {
           <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                {editingUser ? 'Edit User' : 'Add New User'}
+                {editingUser ? "Edit User" : "Add New User"}
               </h3>
               <button
                 onClick={resetForm}
@@ -313,7 +328,9 @@ export default function UserManagement() {
                     type="text"
                     required
                     value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, username: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -326,7 +343,9 @@ export default function UserManagement() {
                     type="text"
                     required
                     value={formData.full_name}
-                    onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, full_name: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -339,7 +358,9 @@ export default function UserManagement() {
                     type="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -352,7 +373,9 @@ export default function UserManagement() {
                     type="tel"
                     required
                     value={formData.mobile}
-                    onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, mobile: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -364,11 +387,15 @@ export default function UserManagement() {
                   <select
                     required
                     value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, role: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
-                    {roles.map(role => (
-                      <option key={role} value={role}>{role}</option>
+                    {roles.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -380,7 +407,9 @@ export default function UserManagement() {
                   <input
                     type="text"
                     value={formData.designation}
-                    onChange={(e) => setFormData({...formData, designation: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, designation: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -394,7 +423,9 @@ export default function UserManagement() {
                       type="password"
                       required={!editingUser}
                       value={formData.password}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
@@ -413,7 +444,7 @@ export default function UserManagement() {
                   type="submit"
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200"
                 >
-                  {editingUser ? 'Update User' : 'Create User'}
+                  {editingUser ? "Update User" : "Create User"}
                 </button>
               </div>
             </form>

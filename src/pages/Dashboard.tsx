@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Users,
   UserCheck,
@@ -10,8 +10,8 @@ import {
   Plus,
   Eye,
   Send,
-  BarChart3
-} from 'lucide-react';
+  BarChart3,
+} from "lucide-react";
 
 interface DashboardMetrics {
   totalVoters: number;
@@ -50,14 +50,14 @@ export default function Dashboard() {
   const fetchDashboardData = async () => {
     try {
       const [metricsRes, activitiesRes] = await Promise.all([
-        axios.get('/analytics/dashboard'),
-        axios.get('/analytics/recent-activity'),
+        axios.get("/analytics/dashboard"),
+        axios.get("/analytics/recent-activity"),
       ]);
 
       setMetrics(metricsRes.data);
       setRecentActivities(activitiesRes.data);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error("Error fetching dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -65,63 +65,63 @@ export default function Dashboard() {
 
   const statCards = [
     {
-      title: 'Total Voters',
+      title: "Total Voters",
       value: metrics.totalVoters,
       icon: Users,
-      color: 'bg-blue-500',
-      change: '+2.5%',
+      color: "bg-blue-500",
+      change: "+2.5%",
     },
     {
-      title: 'Active Users',
+      title: "Active Users",
       value: metrics.activeUsers,
       icon: UserCheck,
-      color: 'bg-green-500',
-      change: '+1.2%',
+      color: "bg-green-500",
+      change: "+1.2%",
     },
     {
-      title: 'Total Tasks',
+      title: "Total Tasks",
       value: metrics.totalTasks,
       icon: CheckSquare,
-      color: 'bg-orange-500',
-      change: '+5.4%',
+      color: "bg-orange-500",
+      change: "+5.4%",
     },
     {
-      title: 'SMS Sent',
+      title: "SMS Sent",
       value: metrics.totalSmsSent,
       icon: MessageSquare,
-      color: 'bg-purple-500',
-      change: '+12.1%',
+      color: "bg-purple-500",
+      change: "+12.1%",
     },
   ];
 
   const quickActions = [
     {
-      title: 'Add Voter',
-      description: 'Register a new voter',
+      title: "Add Voter",
+      description: "Register a new voter",
       icon: Plus,
-      href: '/voters?tab=entry',  // tab=add ....new added
-      color: 'bg-blue-500 hover:bg-blue-600',
+      href: "/voters?tab=entry", // tab=add ....new added
+      color: "bg-blue-500 hover:bg-blue-600",
     },
     {
-      title: 'View Tasks',
-      description: 'Manage pending tasks',
+      title: "View Tasks",
+      description: "Manage pending tasks",
       icon: Eye,
-      href: '/tasks',
-      color: 'bg-green-500 hover:bg-green-600',
+      href: "/tasks",
+      color: "bg-green-500 hover:bg-green-600",
     },
     {
-      title: 'Send SMS',
-      description: 'Compose and send SMS',
+      title: "Send SMS",
+      description: "Compose and send SMS",
       icon: Send,
-      href: '/sms',
-      color: 'bg-purple-500 hover:bg-purple-600',
+      href: "/sms",
+      color: "bg-purple-500 hover:bg-purple-600",
     },
     {
-      title: 'Analytics',
-      description: 'View detailed reports',
+      title: "Analytics",
+      description: "View detailed reports",
       icon: BarChart3,
-      href: '/analytics',
-      color: 'bg-orange-500 hover:bg-orange-600',
+      href: "/analytics",
+      color: "bg-orange-500 hover:bg-orange-600",
     },
   ];
 
@@ -148,11 +148,18 @@ export default function Dashboard() {
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
-            <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div
+              key={index}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+            >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{card.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{card.value.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    {card.title}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {card.value.toLocaleString()}
+                  </p>
                   <p className="text-sm text-green-600 flex items-center mt-1">
                     <TrendingUp className="h-3 w-3 mr-1" />
                     {card.change}
@@ -171,7 +178,9 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Quick Actions
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {quickActions.map((action, index) => {
                 const Icon = action.icon;
@@ -185,7 +194,9 @@ export default function Dashboard() {
                       <Icon className="h-6 w-6" />
                       <div>
                         <h3 className="font-medium">{action.title}</h3>
-                        <p className="text-sm opacity-90">{action.description}</p>
+                        <p className="text-sm opacity-90">
+                          {action.description}
+                        </p>
                       </div>
                     </div>
                   </a>
@@ -197,7 +208,9 @@ export default function Dashboard() {
 
         {/* Recent Activity */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Recent Activity
+          </h2>
           <div className="space-y-4">
             {recentActivities.length > 0 ? (
               recentActivities.map((activity) => (
