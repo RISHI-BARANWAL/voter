@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import {
   LayoutDashboard,
   Users,
@@ -18,8 +18,10 @@ import {
   Menu,
   X,
   LogOut,
-  User
-} from 'lucide-react';
+  User,
+  Bell,
+} from "lucide-react";
+import axios from "axios";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -31,43 +33,133 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'User Management', href: '/users', icon: Users, roles: ['Super Admin', 'Admin'] },
-    { name: 'Voter Data Entry', href: '/voters?tab=entry', icon: Database }, // ....new added  ?tab=entry
-    { name: 'Task Management', href: '/tasks', icon: CheckSquare }, 
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    { name: 'Search & Filter', href: '/voters?tab=search', icon: Search },
-    { name: 'SMS Module', href: '/sms', icon: MessageSquare },
-    { name: 'Import/Export', href: '/voters?tab=import', icon: Upload, roles: ['Super Admin', 'Admin'] },
-    // { name: 'Audit Logs', href: '/audit-logs', icon: Shield, roles: ['Super Admin', 'Admin'] },
-    { name: 'Settings', href: '/settings', icon: Settings, roles: ['Super Admin', 'Admin'] },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    {
+      name: "User Management",
+      href: "/users",
+      icon: Users,
+      roles: ["Super Admin", "Admin"],
+    },
+    { name: "Voter Data Entry", href: "/voters?tab=entry", icon: Database },
+    { name: "Task Management", href: "/tasks", icon: CheckSquare },
+    { name: "Analytics", href: "/analytics", icon: BarChart3 },
+    { name: "Search & Filter", href: "/voters?tab=search", icon: Search },
+    {
+      name: "Notification Module",
+      href: "/notifications",
+      icon: MessageSquare,
+    },
+    {
+      name: "Import/Export",
+      href: "/voters?tab=import",
+      icon: Upload,
+      roles: ["Super Admin", "Admin"],
+    },
+    {
+      name: "Settings",
+      href: "/settings",
+      icon: Settings,
+      roles: ["Super Admin", "Admin"],
+    },
   ];
 
-  const filteredNavigation = navigation.filter(item => 
-    !item.roles || item.roles.includes(user?.role || '')
+  const filteredNavigation = navigation.filter(
+    (item) => !item.roles || item.roles.includes(user?.role || "")
   );
 
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Calculate unread count based on readBy array including current user id
+  const unreadCount = notifications.filter(
+    (n) => !n.readBy?.includes(user?._id)
+  ).length;
+
+  const toggleNotif = () => {
+    setIsNotifOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const response = await axios.get("/notifications/my", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setNotifications(response.data);
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target as Node)
+      ) {
+        setIsNotifOpen(false);
+      }
+    }
+    if (isNotifOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isNotifOpen]);
+
+  const markAsRead = async (id: string) => {
+    try {
+      await axios.post(
+        `/notifications/read/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n._id === id ? { ...n, readBy: [...(n.readBy || []), user._id] } : n
+        )
+      );
+    } catch (err) {
+      console.error("Failed to mark as read", err);
+    }
+  };
+
   const isActive = (href: string) => {
-    const [path, query] = href.split('?');
+    const [path, query] = href.split("?");
     const currentPath = location.pathname;
     const currentSearch = location.search;
-    
-    if (path === '/dashboard') {
-      return currentPath === '/' || currentPath === '/dashboard';
+
+    if (path === "/dashboard") {
+      return currentPath === "/" || currentPath === "/dashboard";
     }
-    
+
     if (query) {
-      // For URLs with query parameters, match both path and query
       return currentPath === path && currentSearch === `?${query}`;
     }
-    
-    // For URLs without query parameters, just match the path
+
     return currentPath === path && !currentSearch;
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden"
@@ -75,10 +167,11 @@ export default function Layout({ children }: LayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:inset-y-0 ${  // lg:static lg:inset-0 ....new added
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:inset-y-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <h1 className="text-lg font-semibold text-gray-900">VoterAdmin</h1>
           <button
@@ -99,14 +192,18 @@ export default function Layout({ children }: LayoutProps) {
                   to={item.href}
                   className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                     isActive(item.href)
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon className={`mr-3 h-5 w-5 ${
-                    isActive(item.href) ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-500'
-                  }`} />
+                  <Icon
+                    className={`mr-3 h-5 w-5 ${
+                      isActive(item.href)
+                        ? "text-blue-700"
+                        : "text-gray-400 group-hover:text-gray-500"
+                    }`}
+                  />
                   {item.name}
                 </Link>
               );
@@ -114,7 +211,6 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </nav>
 
-        {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -125,9 +221,7 @@ export default function Layout({ children }: LayoutProps) {
                 <p className="text-sm font-medium text-gray-900 truncate">
                   {user?.full_name}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {user?.role}
-                </p>
+                <p className="text-xs text-gray-500 truncate">{user?.role}</p>
               </div>
             </div>
             <button
@@ -144,9 +238,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </div>
 
-      {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top bar */}
         <div className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6">
             <button
@@ -155,19 +247,64 @@ export default function Layout({ children }: LayoutProps) {
             >
               <Menu className="h-6 w-6" />
             </button>
-            
+
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-500">
                 Welcome back, {user?.full_name}
               </div>
+
+              <div className="fixed top-4 right-4 z-50" ref={notifRef}>
+                <button
+                  onClick={toggleNotif}
+                  className="relative p-2 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label="Notifications"
+                  aria-haspopup="true"
+                  aria-expanded={isNotifOpen}
+                >
+                  <Bell className="h-6 w-6" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {isNotifOpen && (
+                  <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div className="py-2 max-h-60 overflow-y-auto">
+                      {notifications.length === 0 && (
+                        <p className="px-4 py-2 text-sm text-gray-500">
+                          No notifications
+                        </p>
+                      )}
+                      {notifications.map((notif) => (
+                        <button
+                          key={notif._id}
+                          onClick={() => {
+                            if (!notif.readBy?.includes(user?._id))
+                              markAsRead(notif._id);
+                          }}
+                          type="button"
+                          className={`flex items-center w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                            !notif.readBy?.includes(user?._id)
+                              ? "bg-blue-50"
+                              : ""
+                          }`}
+                        >
+                          {!notif.readBy?.includes(user?._id) && (
+                            <span className="inline-block w-2 h-2 mr-2 bg-red-600 rounded-full flex-shrink-0" />
+                          )}
+                          <span className="flex-1">{notif.message}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Page content */}
-        <main className="p-6">
-          {children}
-        </main>
+        <main className="p-6">{children}</main>
       </div>
     </div>
   );
