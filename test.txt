@@ -86,3 +86,46 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_app_password
+
+
+
+
+
+
+
+
+
+
+
+
+server.js
+// ✅ CORS Setup
+const allowedOrigins = [
+  "http://localhost:5173",         // local dev
+  "https://thebyd.org",            // Hostinger deployed frontend
+  "https://voter-phow.onrender.com" // just in case your frontend hits itself
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS: " + origin));
+      }
+    },
+    credentials: true,
+  })
+);  //....new added
+
+
+database.js,
+const mongoUri = process.env.MONGODB_URI || "mongodb+srv://david:1David123@cluster0.iflqqm2.mongodb.net/voter_management_db?retryWrites=true&w=majority&appName=Cluster0" || "mongodb://localhost:27017/voter_management_dbT";
+
+
+.env -> VITE_API_BASE_URL=https://voter-phow.onrender.com/api (frontend)
+VITE_API_BASE_URL=http://localhost:5000/api  (backend)
+
+AuthContext.tsx:-
+const API_BASE_URL =  (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:5000/api' || 'https://thebyd.org/api' || 'https://voter-phow.onrender.com/api'; //....new added. import.meta.env.VITE_API_BASE_URL ||

@@ -21,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL =  (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:5000/api' || 'https://thebyd.org/api' || 'https://voter-phow.onrender.com/api'; //....new added. import.meta.env.VITE_API_BASE_URL ||
+const API_BASE_URL =  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'; //....new added. import.meta.env.VITE_API_BASE_URL ||
 
 // Set up axios defaults
 axios.defaults.baseURL = API_BASE_URL;
