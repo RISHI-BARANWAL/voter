@@ -13,7 +13,7 @@ export async function connectToDatabase() {
   }
 
   const mongoUri =
-    process.env.MONGODB_URI || "mongodb://localhost:27017/voter_management_dbT";
+    process.env.MONGODB_URI || "mongodb+srv://david:1David123@cluster0.iflqqm2.mongodb.net/voter_management_db?retryWrites=true&w=majority&appName=Cluster0" || "mongodb://localhost:27017/voter_management_dbT";
 
   try {
     await mongoose.connect(mongoUri, {
