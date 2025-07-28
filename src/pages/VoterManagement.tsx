@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';      ///....new added
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -14,8 +14,8 @@ import {
   Users,
   Phone,
   PhoneOff,
-  FileText,
-  Database
+  // FileText,
+  // Database
 } from 'lucide-react';
 
 interface Voter {
@@ -78,7 +78,8 @@ export default function VoterManagement() {
     city: '',
     mobile_number: '',
     whatsapp_number: '',
-    head_of_house: 0,
+    head_of_house: '', //....new added 0
+    voter_image: '', //....new added
     political_preference: '',
     party_designation: '',
     occupation: '',
@@ -88,6 +89,7 @@ export default function VoterManagement() {
     present_city_name: '',
     date_of_birth: '',
     booth: '',
+    is_dead: false, //....new added
   });
 
   useEffect(() => {
@@ -174,7 +176,8 @@ export default function VoterManagement() {
       city: '',
       mobile_number: '',
       whatsapp_number: '',
-      head_of_house: 0,
+      head_of_house: '',  //....new added 0
+      voter_image: '',   //....new added
       political_preference: '',
       party_designation: '',
       occupation: '',
@@ -184,6 +187,7 @@ export default function VoterManagement() {
       present_city_name: '',
       date_of_birth: '',
       booth: '',
+      is_dead: false, //....new added
     });
     setShowAddModal(false);
     setEditingVoter(null);
@@ -198,7 +202,7 @@ export default function VoterManagement() {
 
     setImporting(true);
     try {
-      const response = await axios.post('/voters/import', formData, {
+      const response = await axios.post('/voters/import', formData, {   //....new added.   'http://localhost:5000/api/voters/import'  or    '/voters/import'
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -271,7 +275,8 @@ export default function VoterManagement() {
         city: fullVoter.city || '',
         mobile_number: fullVoter.mobile_number || '',
         whatsapp_number: fullVoter.whatsapp_number || '',
-        head_of_house: fullVoter.head_of_house || 0,
+        head_of_house: fullVoter.head_of_house || 0 || '', //....new added ''
+        voter_image: fullVoter.voter_image || '', //....new added
         political_preference: fullVoter.political_preference || '',
         party_designation: fullVoter.party_designation || '',
         occupation: fullVoter.occupation || '',
@@ -281,6 +286,7 @@ export default function VoterManagement() {
         present_city_name: fullVoter.present_city_name || '',
         date_of_birth: fullVoter.date_of_birth ? fullVoter.date_of_birth.split('T')[0] : '',
         booth: fullVoter.booth || '',
+        is_dead: fullVoter.is_dead || false, //....new added
       });
       setShowAddModal(true);
     } catch (error) {
@@ -881,6 +887,18 @@ export default function VoterManagement() {
                     />
                   </div>
 
+                  <div>  {/* /// */}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Village
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.village}
+                      onChange={(e) => setFormData({...formData, village: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Booth
@@ -952,6 +970,35 @@ export default function VoterManagement() {
                     </select>
                   </div>
 
+                  <div>  {/* /// */}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Party Designation
+                    </label>
+                    <select
+                      value={formData.party_designation}
+                      onChange={(e) => setFormData({...formData, party_designation: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select Party</option>
+                      <option value="BJP">BJP</option>
+                      <option value="Congress">Congress</option>
+                      <option value="AAP">AAP</option>
+                      <option value="Neutral">Neutral</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Head of Family
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.head_of_house}
+                      onChange={(e) => setFormData({...formData, head_of_house: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Occupation
@@ -962,6 +1009,61 @@ export default function VoterManagement() {
                       onChange={(e) => setFormData({...formData, occupation: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
+                  </div>
+                  {/* <div>   
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Occupation
+                    </label>
+                    <select
+                      value={formData.occupation}
+                      onChange={(e) => setFormData({...formData, occupation: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select</option>
+                      <option value="b">Bussines</option>
+                      <option value="work">Worker</option>
+                      <option value="govt">Govt Employee</option>
+                      <option value="self">Self Employed</option>
+                      <option value="student">Student</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div> */}
+
+                  <div>  {/* /// */}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Occupation Subcategory
+                    </label>
+                    <select
+                      value={formData.occupation_subcategory}
+                      onChange={(e) => setFormData({...formData, occupation_subcategory: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select</option>
+                      <option value="b">Bussines</option>
+                      <option value="work">Worker</option>
+                      <option value="govt">Govt Employee</option>
+                      <option value="self">Self Employed</option>
+                      <option value="student">Student</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>  {/* /// */}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Category
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select Category</option>
+                      <option value="general">General</option>
+                      <option value="st">St</option>
+                      <option value="sc">SC</option>
+                      <option value="obc">OBC</option>
+                      <option value="ews">EWS</option>
+                    </select>
                   </div>
 
                   <div>
@@ -975,6 +1077,83 @@ export default function VoterManagement() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sub Caste
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.sub_caste}
+                      onChange={(e) => setFormData({...formData, sub_caste: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sub Sub Caste
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.sub_sub_caste}
+                      onChange={(e) => setFormData({...formData, sub_sub_caste: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Present City
+                    </label>
+                    <select
+                      value={formData.present_in_city.toString()} // convert boolean → string for UI
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          present_in_city: e.target.value === "true" // convert string → boolean for state
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select</option>
+                      <option value="true">Yes</option>
+                      <option value="false">No</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Present City Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.present_city_name}
+                      onChange={(e) => setFormData({...formData, present_city_name: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Is Dead
+                    </label>
+                    <select
+                      value={formData.is_dead.toString()} // convert boolean → string for UI
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          is_dead: e.target.value === "true" // convert string → boolean for state
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select</option>
+                      <option value="true">Yes</option>
+                      <option value="false">No</option>
+                    </select>
+                  </div>
+
                 </div>
               </div>
 

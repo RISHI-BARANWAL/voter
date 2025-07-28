@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
+
 import {
   Plus,
   Edit,
@@ -29,11 +31,12 @@ export default function TaskManagement() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
-
+  const { user } = useAuth(); ///.... new added
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     assigned_to: '',
+    assigned_by: '', ///.... new added
     due_date: '',
     start_date: '',
     priority: 'Medium',
@@ -60,11 +63,26 @@ export default function TaskManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/users');
+      const response = await axios.get('/users', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       setUsers(response.data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
+    } 
+    // catch (error) {
+    //   console.error('Error fetching users:', error);
+    // }
+    catch (error: any) {   ///....new added
+      if (error.response?.status === 403) {
+        console.warn("Access denied: insufficient permissions");
+        // Optional: show user-friendly message or skip showing users
+        setUsers([]); // or keep users unchanged
+      } else {
+        console.error("Error fetching users:", error);
+      }
+    }  //....new added
+
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,11 +108,24 @@ export default function TaskManagement() {
     }
   };
 
+  const deleteTask = async (taskId: number) => {  ///....new added.    string or number
+  if (!confirm("Are you sure you want to delete this task?")) return;
+    try {
+      await axios.delete(`/tasks/${taskId}`);
+      toast.success("Task deleted successfully");
+      fetchTasks(); // Refresh task list
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      toast.error(error.response?.data?.message || "Failed to delete task");
+    }
+  }; ///....new added
+
   const resetForm = () => {
     setFormData({
       title: '',
       description: '',
       assigned_to: '',
+      assigned_by: '', //.... new added
       due_date: '',
       start_date: '',
       priority: 'Medium',
@@ -167,8 +198,8 @@ export default function TaskManagement() {
       {/* Status Filter */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700">Filter by status:</span>
-          <div className="flex space-x-2">
+          <span className="text-sm font-medium text-gray-700">Filter status:</span>
+          <div className="flex flex-wrap gap-x-2 gap-y-2">  {/* ....new added flex-wrap, gap-y-2 and space-x-2 */}
             {['', 'Not Started', 'In Progress', 'Completed'].map((status) => (
               <button
                 key={status}
@@ -207,6 +238,13 @@ export default function TaskManagement() {
             )}
 
             <div className="space-y-2 text-sm">
+              {task.assigned_by_name && (  ///....new added
+                <div className="flex items-center space-x-2">
+                  <User className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-600">Assigned by: {task.assigned_by_name}</span>
+                </div>
+              )}
+
               {task.assigned_to_name && (
                 <div className="flex items-center space-x-2">
                   <User className="h-4 w-4 text-gray-400" />
@@ -227,6 +265,12 @@ export default function TaskManagement() {
                 <span className={getPriorityBadge(task.priority)}>
                   {task.priority}
                 </span>
+
+                {( user?.full_name === task.assigned_by_name ) && (  ///....new added delete
+                  <button onClick={() => deleteTask(task.id)} className="text-red-500 p-1 hover: bg-red-300 rounded">
+                    DELETE
+                  </button>
+                )}
 
                 {task.status !== 'Completed' && (
                   <div className="flex space-x-2">
@@ -309,6 +353,7 @@ export default function TaskManagement() {
                   </label>
                   <select
                     value={formData.assigned_to}
+                    required
                     onChange={(e) => setFormData({...formData, assigned_to: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >

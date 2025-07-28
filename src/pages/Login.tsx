@@ -103,7 +103,8 @@ export default function Login() {
 
           <div className="text-center">
             <p className="text-xs text-gray-500">
-              Default credentials: admin / admin123
+              {/* Default credentials: admin / admin123 */}  
+              Developed By:- SBS Tech Solution
             </p>
           </div>
         </form>

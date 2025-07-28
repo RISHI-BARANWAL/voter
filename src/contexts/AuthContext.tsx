@@ -3,6 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 interface User {
+  _id: string; ///....new added Changed to string to match MongoDB ObjectId type
   id: number;
   username: string;
   full_name: string;
@@ -20,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL =  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'; //....new added. import.meta.env.VITE_API_BASE_URL ||
 
 // Set up axios defaults
 axios.defaults.baseURL = API_BASE_URL;
@@ -72,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await axios.post('/auth/logout');
     } catch (error) {
+      console.error('Logout failed:', error); //....new added 
       // Continue with logout even if API call fails
     } finally {
       localStorage.removeItem('token');

@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   LayoutDashboard,
   Users,
-  UserPlus,
+  // UserPlus,
   Database,
   CheckSquare,
   BarChart3,
@@ -12,9 +12,9 @@ import {
   Settings,
   MessageSquare,
   Upload,
-  Download,
-  Shield,
-  FileText,
+  // Download,
+  // Shield,
+  // FileText,
   Menu,
   X,
   LogOut,
@@ -73,7 +73,7 @@ export default function Layout({ children }: LayoutProps) {
 
   // Calculate unread count based on readBy array including current user id
   const unreadCount = notifications.filter(
-    (n) => !n.readBy?.includes(user?._id)
+    (n) => !n.readBy?.includes(user?._id)  //....new added id or _id
   ).length;
 
   const toggleNotif = () => {
@@ -134,7 +134,7 @@ export default function Layout({ children }: LayoutProps) {
 
       setNotifications((prev) =>
         prev.map((n) =>
-          n._id === id ? { ...n, readBy: [...(n.readBy || []), user._id] } : n
+          n._id === id && user ? { ...n, readBy: [...(n.readBy || []), user._id] } : n    //....new added && user ? or user._id
         )
       );
     } catch (err) {
@@ -232,8 +232,9 @@ export default function Layout({ children }: LayoutProps) {
               <LogOut className="h-5 w-5" />
             </button>
           </div>
+          <hr></hr>
           <div className="mt-2 text-xs text-center text-gray-500">
-            System Administrator
+            Developed By:- @SBS Tech Solution
           </div>
         </div>
       </div>
@@ -249,11 +250,11 @@ export default function Layout({ children }: LayoutProps) {
             </button>
 
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 pr-12">  {/* ....new added pr-12 for padding */}
                 Welcome back, {user?.full_name}
               </div>
 
-              <div className="fixed top-4 right-4 z-50" ref={notifRef}>
+              <div className="fixed top-4 right-4 z-50 text-right" ref={notifRef}>    {/* ....new added fixed in Notification Bell */}
                 <button
                   onClick={toggleNotif}
                   className="relative p-2 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -281,17 +282,17 @@ export default function Layout({ children }: LayoutProps) {
                         <button
                           key={notif._id}
                           onClick={() => {
-                            if (!notif.readBy?.includes(user?._id))
+                            if (!notif.readBy?.includes(user?._id))  //....new added id or _id
                               markAsRead(notif._id);
                           }}
                           type="button"
                           className={`flex items-center w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                            !notif.readBy?.includes(user?._id)
+                            !notif.readBy?.includes(user?._id)   //....new added id or _id
                               ? "bg-blue-50"
                               : ""
                           }`}
                         >
-                          {!notif.readBy?.includes(user?._id) && (
+                          {!notif.readBy?.includes(user?._id) && (    //....new added id or _id
                             <span className="inline-block w-2 h-2 mr-2 bg-red-600 rounded-full flex-shrink-0" />
                           )}
                           <span className="flex-1">{notif.message}</span>

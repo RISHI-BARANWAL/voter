@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose";     ///....new added
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 

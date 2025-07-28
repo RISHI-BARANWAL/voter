@@ -9,7 +9,7 @@ const router = express.Router();
 router.post(
   "/send",
   authenticateToken,
-  authorizeRoles("Super Admin", "Supervisor", "Karyakarta"),
+  authorizeRoles("Super Admin", "Supervisor", "Karyakarta", "Admin"),   ///....new added
   async (req, res) => {
     try {
       const { message, recipients, type = "manual" } = req.body;
@@ -70,7 +70,7 @@ router.get("/my", authenticateToken, async (req, res) => {
 router.get(
   "/logs",
   authenticateToken,
-  authorizeRoles("Super Admin", "Supervisor", "Karyakarta"),
+  authorizeRoles("Super Admin", "Supervisor", "Karyakarta", "Admin"),   ///....new added
   async (req, res) => {
     try {
       const notifications = await Notification.find({
@@ -90,7 +90,7 @@ router.get(
 router.get(
   "/stats",
   authenticateToken,
-  authorizeRoles("Super Admin", "Supervisor", "Karyakarta"),
+  authorizeRoles("Super Admin", "Supervisor", "Karyakarta", "Admin"),   ///....new added
   async (req, res) => {
     try {
       const totalNotifications = await Notification.countDocuments({

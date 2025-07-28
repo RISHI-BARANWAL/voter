@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";     ///....new added
 import axios from "axios";
 import toast from "react-hot-toast";
 import {
@@ -40,7 +40,7 @@ export default function NotificationModule() {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const [roles] = useState(["Supervisor", "Karyakarta"]);
+  const [roles] = useState(["Supervisor", "Karyakarta", "Admin"]);  //....new added
   const [selectedRole, setSelectedRole] = useState("");
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -145,11 +145,11 @@ export default function NotificationModule() {
   };
 
   const birthdayTemplate =
-    "🎉 Happy Birthday! Wishing you a wonderful year ahead. Best regards from your local representative.";
+    "To...🎉 Happy Birthday! Wishing you a wonderful year ahead. Best regards from your local representative. From...";
   const reminderTemplate =
-    "📢 Important Reminder: Please don't forget to exercise your voting rights in the upcoming election.";
+    "To...📢 Important Reminder: Please don't forget to exercise your voting rights in the upcoming election. From...";
   const announceTemplate =
-    "📣 Community Announcement: We are organizing a local meeting on [DATE] at [TIME]. Your participation is valuable.";
+    "To...📣 Community Announcement: We are organizing a local meeting on [DATE] at [TIME]. Your participation is valuable. From...";
 
   const templates = [
     { name: "Birthday Wishes", content: birthdayTemplate },

@@ -108,7 +108,7 @@ router.get('/areas', authenticateToken, async (req, res) => {
 // Recent activity
 router.get('/recent-activity', authenticateToken, async (req, res) => {
   try {
-    const activities = await AuditLog.find()
+    const activities = await AuditLog.find( { user_id: req.user.id } )   //....new added ✅ filter by user ID 
       .populate('user_id', 'full_name')
       .sort({ createdAt: -1 })
       .limit(10);

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose";     ///....new added
 
 // User Schema
 const userSchema = new mongoose.Schema(
@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["Super Admin", "Admin", "Supervisor", "Karyakarta"],
+      enum: ["Super Admin", "Admin", "Supervisor", "Karyakarta"],  ///....new added "Super Admin",
       default: "Karyakarta",
     },
     booth_access: { type: String },
@@ -34,7 +34,7 @@ const voterSchema = new mongoose.Schema(
   {
     full_name: { type: String, required: true },
     age: { type: Number },
-    gender: { type: String, enum: ["Male", "Female", "Other"] },
+    gender: { type: String, enum: ["Male", "Female", "Other"] }, //....new added
     father_husband_name: { type: String },
     house_no: { type: String },
     category: { type: String },
@@ -48,7 +48,7 @@ const voterSchema = new mongoose.Schema(
     city: { type: String },
     mobile_number: { type: String },
     whatsapp_number: { type: String },
-    head_of_house: { type: Number, default: 0 },
+    head_of_house: { type: Number, default: 0 },  //....new added
     voter_image: { type: String },
     political_preference: { type: String },
     party_designation: { type: String },
@@ -62,7 +62,7 @@ const voterSchema = new mongoose.Schema(
     is_dead: { type: Boolean, default: false },
     family_id: { type: String },
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  },
+  }, 
   {
     timestamps: true,
   }

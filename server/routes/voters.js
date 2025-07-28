@@ -1,11 +1,12 @@
-import express from "express";
-import { Voter, AuditLog } from "../models/index.js";
-import { authenticateToken, authorizeRoles } from "../middleware/auth.js";
-import { v4 as uuidv4 } from "uuid";
-import multer from "multer";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import express from 'express';    ///....new added
+import { Voter, AuditLog } from '../models/index.js';
+import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
+import { v4 as uuidv4 } from 'uuid';
+import multer from 'multer';
+import XLSX from 'xlsx'; //....new added
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,18 +14,19 @@ const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 // Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "../uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
+const storage = multer.memoryStorage(); // ✅ Stores file in memory as buffer.     //....new added     imp
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     const uploadDir = path.join(__dirname, '../uploads');
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir, { recursive: true });
+//     }
+//     cb(null, uploadDir);
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, `${Date.now()}-${file.originalname}`);
+//   }
+// });
 
 const upload = multer({
   storage,
@@ -207,8 +209,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       }
     });
 
-    console.log("Updating voter with ID:", id);
-    console.log("Update data:", updateData);
+    console.log('Updating voter with ID:', id);  
+    console.log('Update data:', updateData);
 
     const voter = await Voter.findByIdAndUpdate(id, updateData, {
       new: true,
@@ -286,101 +288,94 @@ router.get("/family/:familyId", authenticateToken, async (req, res) => {
 });
 
 // Import voters from Excel/CSV (Admin/Super Admin only)
-router.post(
-  "/import",
-  authenticateToken,
-  authorizeRoles("Super Admin", "Admin"),
-  upload.single("file"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
+router.post('/import', authenticateToken, authorizeRoles('Super Admin', 'Admin'), upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file || !req.file.buffer) {  //....new added  || !req.file.buffer
+      return res.status(400).json({ message: 'No file uploaded or invalid format' });
+    }
 
-      const filePath = req.file.path;
-      const ext = path.extname(req.file.originalname).toLowerCase();
+    const filePath = req.file.path;    ///
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    
+    let data = [];
+    
+    if (ext === '.csv') {
+      // Handle CSV files
+      const csvData = fs.readFileSync(filePath, 'utf8');     ///
+      const lines = csvData.split('\n');
+      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());  //....new added  .toLowerCase()
+      
+      for (let i = 1; i < lines.length; i++) {
+        if (lines[i].trim()) {
+          const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+          const row = {};
+          // headers.forEach((header, index) => {
+          //   row[header] = values[index] || '';
+          // });
+          headers.forEach((header, index) => { //....new added
+            row[header] = values[index] !== undefined ? values[index] : '';
+          });
 
-      let data = [];
-
-      if (ext === ".csv") {
-        // Handle CSV files
-        const csvData = fs.readFileSync(filePath, "utf8");
-        const lines = csvData.split("\n");
-        const headers = lines[0]
-          .split(",")
-          .map((h) => h.trim().replace(/"/g, ""));
-
-        for (let i = 1; i < lines.length; i++) {
-          if (lines[i].trim()) {
-            const values = lines[i]
-              .split(",")
-              .map((v) => v.trim().replace(/"/g, ""));
-            const row = {};
-            headers.forEach((header, index) => {
-              row[header] = values[index] || "";
-            });
-            data.push(row);
-          }
+          data.push(row);
         }
-      } else {
-        // Handle Excel files
-        const XLSX = await import("xlsx");
-        const workbook = XLSX.readFile(filePath);
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        data = XLSX.utils.sheet_to_json(worksheet);
       }
+    } else {
+      // Handle Excel files
+      const XLSX = await import('xlsx');   
+      // const workbook = XLSX.readFile(filePath);
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' }); //....new added
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        return res.status(400).json({ message: 'Invalid Excel file: No sheets found' });
+      } //....new added
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });  //....new added  , { defval: '' }
+      // res.status(200).json({ message: 'Voters imported successfully', data });  ///....new added
+    }
 
       const importedVoters = [];
       const errors = [];
 
-      for (let i = 0; i < data.length; i++) {
-        try {
-          const row = data[i];
-
-          // Map Excel/CSV columns to database fields
-          const voterData = {
-            full_name:
-              row["Full Name"] || row["full_name"] || row["Name"] || "",
-            age: parseInt(row["Age"] || row["age"]) || null,
-            gender: row["Gender"] || row["gender"] || "",
-            father_husband_name:
-              row["Father/Husband Name"] ||
-              row["father_husband_name"] ||
-              row["Father Name"] ||
-              "",
-            house_no:
-              row["House No"] || row["house_no"] || row["House Number"] || "",
-            ward_area:
-              row["Ward/Area"] || row["ward_area"] || row["Area"] || "",
-            district: row["District"] || row["district"] || "",
-            taluka: row["Taluka"] || row["taluka"] || "",
-            village: row["Village"] || row["village"] || "",
-            city: row["City"] || row["city"] || "",
-            mobile_number:
-              row["Mobile Number"] ||
-              row["mobile_number"] ||
-              row["Mobile"] ||
-              "",
-            whatsapp_number:
-              row["WhatsApp Number"] ||
-              row["whatsapp_number"] ||
-              row["WhatsApp"] ||
-              "",
-            political_preference:
-              row["Political Preference"] ||
-              row["political_preference"] ||
-              row["Party"] ||
-              "",
-            occupation: row["Occupation"] || row["occupation"] || "",
-            voter_id: row["Voter ID"] || row["voter_id"] || row["ID"] || "",
-            booth: row["Booth"] || row["booth"] || "",
-            caste: row["Caste"] || row["caste"] || "",
-            category: row["Category"] || row["category"] || "",
-            created_by: req.user._id,
-            head_of_house:
-              parseInt(row["Head of House"] || row["head_of_house"]) || 0,
-          };
+    for (let i = 0; i < data.length; i++) {
+      try {
+        const row = data[i];
+        
+        // Map Excel/CSV columns to database fields. //....new added
+        const voterData = {
+          full_name: row['Full Name'] || row['full_name'] || row['Name'] || '',
+          age: parseInt(row['Age'] || row['age']) || null,
+          gender: row['Gender'] || row['gender'] || '',
+          father_husband_name: row['Father/Husband Name'] || row['father_husband_name'] || row['Father Name'] || '',
+          house_no: row['House No'] || row['house_no'] || row['House Number'] || '',
+          category: row['Category'] || row['category'] || '',  //....new added
+          caste: row['Caste'] || row['caste'] || '',  //....new added
+          sub_caste: row['Sub Caste'] || row['sub_caste'] || '', //....new added
+          sub_sub_caste: row['Sub Sub Caste'] || row['sub_sub_caste'] || '', //....new added
+          ward_area: row['Ward/Area'] || row['ward_area'] || row['Area'] || '',
+          district: row['District'] || row['district'] || '',
+          taluka: row['Taluka'] || row['taluka'] || '',
+          village: row['Village'] || row['village'] || '',
+          city: row['City'] || row['city'] || '',
+          mobile_number: row['Mobile Number'] || row['mobile_number'] || row['Mobile'] || '',
+          whatsapp_number: row['WhatsApp Number'] || row['whatsapp_number'] || row['WhatsApp'] || '',
+          head_of_house: parseInt(row['Head of House'] || row['head_of_house']) || 0 || '',  //....new added
+          voter_image: row['Voter Image'] || row['voter_image'] || '',  //....new added
+          political_preference: row['Political Preference'] || row['political_preference'] || row['Party'] || '',
+          party_designation: row['Party Designation'] || row['party_designation'] || '',  //....new added
+          occupation: row['Occupation'] || row['occupation'] || '',
+          occupation_subcategory: row['Occupation Subcategory'] || row['occupation_subcategory'] || '',  //....new added
+          voter_id: row['Voter ID'] || row['voter_id'] || row['ID'] || '',
+          present_in_city: row['Present in City']?.toLowerCase?.() === 'no' ? false : true,  //....new added
+          present_city_name: row['Present City Name'] || row['present_city_name'] || '',  //....new added
+          date_of_birth: row['Date of Birth'] ? new Date(row['Date of Birth']) : null,  //....new added dob
+          booth: row['Booth'] || row['booth'] || '',
+          // caste: row['Caste'] || row['caste'] || '',
+          // category: row['Category'] || row['category'] || '',
+          is_dead: row['Is Dead']?.toLowerCase?.() === 'yes' ? true : false,  //....new added
+          // family_id: row['Family ID'] || uuidv4(),  //....new added
+          created_by: req.user._id,
+          // head_of_house: parseInt(row['Head of House'] || row['head_of_house']) || 0
+        };
 
           // Skip empty rows
           if (!voterData.full_name) continue;
@@ -401,8 +396,8 @@ router.post(
         }
       }
 
-      // Clean up uploaded file
-      fs.unlinkSync(filePath);
+    // Clean up uploaded file
+    // fs.unlinkSync(filePath);      //.... check
 
       // Log audit
       await AuditLog.create({
@@ -416,57 +411,67 @@ router.post(
         },
       });
 
-      res.json({
-        message: "Import completed",
-        imported: importedVoters.length,
-        errors: errors.length,
-        errorDetails: errors.slice(0, 10), // Return first 10 errors
-      });
-    } catch (error) {
-      console.error("Error importing voters:", error);
-      // Clean up file on error
-      if (req.file && fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
-      res.status(500).json({ message: "Import failed", error: error.message });
-    }
+    res.json({     ///
+      message: 'Import completed',
+      imported: importedVoters.length,
+      errors: errors.length,
+      errorDetails: errors.slice(0, 10), // Return first 10 errors
+      data: importedVoters     //   importedVotersdata: importedVoters  or  data: importedVoters
+    });
+
+  } 
+  catch (error) {
+    console.error('Error importing voters:', error);
+    // Clean up file on error
+    // if (req.file && fs.existsSync(req.file.path)) {     //....new added.     need some +changes
+    //   fs.unlinkSync(req.file.path);
+    // }
+    res.status(500).json({ message: 'Import failed', error: error.message });    ///.... check
   }
-);
+});   //....new added  }
+
 
 // Export voters to Excel (Admin/Super Admin only)
-router.get(
-  "/export/excel",
-  authenticateToken,
-  authorizeRoles("Super Admin", "Admin"),
-  async (req, res) => {
-    try {
-      const voters = await Voter.find({}).populate("created_by", "full_name");
-
-      const exportData = voters.map((voter) => ({
-        "Voter ID": voter.voter_id || "",
-        "Full Name": voter.full_name,
-        Age: voter.age || "",
-        Gender: voter.gender || "",
-        "Father/Husband Name": voter.father_husband_name || "",
-        "House No": voter.house_no || "",
-        "Ward/Area": voter.ward_area || "",
-        District: voter.district || "",
-        Taluka: voter.taluka || "",
-        Village: voter.village || "",
-        City: voter.city || "",
-        "Mobile Number": voter.mobile_number || "",
-        "WhatsApp Number": voter.whatsapp_number || "",
-        "Political Preference": voter.political_preference || "",
-        Occupation: voter.occupation || "",
-        Booth: voter.booth || "",
-        Caste: voter.caste || "",
-        Category: voter.category || "",
-        "Head of House": voter.head_of_house || 0,
-        "Created Date": voter.createdAt
-          ? new Date(voter.createdAt).toLocaleDateString()
-          : "",
-        "Created By": voter.created_by?.full_name || "",
-      }));
+router.get('/export/excel', authenticateToken, authorizeRoles('Super Admin', 'Admin'), async (req, res) => {
+  try {
+    const voters = await Voter.find({}).populate('created_by', 'full_name');
+    
+    const exportData = voters.map(voter => ({   //.... it decide the export columns format in xlsx.
+      'Voter ID': voter.voter_id || '',
+      'Full Name': voter.full_name,
+      'Age': voter.age || '',
+      'Gender': voter.gender || '',
+      'Father/Husband Name': voter.father_husband_name || '',
+      'House No': voter.house_no || '',
+      'Category': voter.category || '',  //....new added
+      'Caste': voter.caste || '',  //....new added
+      'Sub Caste': voter.sub_caste || '', //....new added
+      'Sub Sub Caste': voter.sub_sub_caste || '', //....new added
+      'Ward/Area': voter.ward_area || '',
+      'District': voter.district || '',
+      'Taluka': voter.taluka || '',
+      'Village': voter.village || '',
+      'City': voter.city || '',
+      'Mobile Number': voter.mobile_number || '',
+      'WhatsApp Number': voter.whatsapp_number || '',
+      'Head of House': voter.head_of_house || 0 || '',  //....new added
+      'Voter Image': voter.voter_image || '',  //....new added
+      'Political Preference': voter.political_preference || '',
+      'Party Designation': voter.party_designation || '',  //....new added
+      'Occupation': voter.occupation || '',
+      'Occupation Subcategory': voter.occupation_subcategory || '',  //....new added
+      'Present in City': voter.present_in_city ? 'Yes' : 'No',  //....new added
+      'Present City Name': voter.present_city_name || '',  //....new added
+      'Date of Birth': voter.date_of_birth ? new Date(voter.date_of_birth).toLocaleDateString() : '',  //....new added dob
+      'Booth': voter.booth || '',
+      'Is Dead': voter.is_dead ? 'Yes' : 'No',  //....new added
+      // 'Caste': voter.caste || '',
+      // 'Category': voter.category || '',
+      // 'Head of House': voter.head_of_house || 0,
+      // 'Family ID': voter.family_id || '',  //....new added
+      'Created Date': voter.createdAt ? new Date(voter.createdAt).toLocaleDateString() : '',
+      'Created By': voter.created_by?.full_name || ''
+    }));
 
       const XLSX = await import("xlsx");
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -572,7 +577,7 @@ router.post(
               city: row.city,
               mobile_number: row.mobile_number,
               whatsapp_number: row.whatsapp_number,
-              head_of_house: row.head_of_house === "1" ? 1 : 0,
+              head_of_house: row.head_of_house === "1" ? 1 : '',   ///....new added
               voter_image: row.voter_image,
               political_preference: row.political_preference,
               party_designation: row.party_designation,
@@ -585,7 +590,7 @@ router.post(
                 ? new Date(row.date_of_birth)
                 : null,
               booth: row.booth,
-              is_dead: row.is_dead?.toLowerCase() === "true",
+              is_dead: row.is_dead?.toLowerCase() === "false",  //....new added  true/false
               created_by: req.user.id,
             });
           })

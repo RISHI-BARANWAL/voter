@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import {
   Settings as SettingsIcon,
   Save,
-  Globe,
+  // Globe,
   Lock,
   Bell,
   Database,
@@ -35,7 +35,7 @@ export default function Settings() {
 
   const fetchSettings = async () => {
     try {
-      const response = await axios.get('/settings');
+      const response = await axios.get('/settings');   /// http://localhost:5000/api/settings
       setSettings(response.data);
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -47,7 +47,7 @@ export default function Settings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put('/settings', settings);
+      await axios.put('/settings', settings);      /// http://localhost:5000/api/settings
       toast.success('Settings updated successfully');
     } catch (error) {
       toast.error('Failed to update settings');
@@ -62,9 +62,10 @@ export default function Settings() {
 
   const tabs = [
     { id: 'general', label: 'General', icon: Info },
+    { id: 'data', label: 'Data Management', icon: Database },
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'data', label: 'Data Management', icon: Database },
+    
   ];
 
   if (loading) {
@@ -99,7 +100,7 @@ export default function Settings() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {/* Tabs */}
         <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
+          <nav className="flex flex-wrap gap-x-8 gap-y-2 px-6">  {/* ....new added space-x-8 or gap-x-8 */}
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (

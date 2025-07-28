@@ -98,6 +98,23 @@ router.put(
       const { id } = req.params;
       const { password, ...updateData } = req.body;
 
+      // Fetch the target user to check their role
+      const targetUser = await User.findById(id);   ///....new added
+      if (!targetUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const targetRole = targetUser.role;
+      const currentUserRole = req.user.role;
+      const currentUserId = req.user._id.toString();
+
+      // Admin should NOT be able to edit Super Admin or Admin
+      if (currentUserRole === "Admin" && (targetRole === "Admin" || targetRole === "Super Admin" ) && id !== currentUserId) {  ///....new added
+        return res.status(403).json({
+          message: "Admins are not allowed to edit other Admins or Super Admins.",
+        });
+      }  ///....new added
+
       if (password) {
         updateData.password = await bcrypt.hash(password, 12);
       }
@@ -131,10 +148,34 @@ router.put(
 router.delete(
   "/:id",
   authenticateToken,
-  authorizeRoles("Super Admin"),
+  authorizeRoles("Super Admin", "Admin"),   ///....new added as per permissions, hirarchy "Admin"
   async (req, res) => {
     try {
       const { id } = req.params;
+
+      // Prevent user from deleting themselves.     ///....new added
+      if (req.user._id.toString() === id) {
+        return res.status(400).json({ message: "You can't delete yourself" });
+      }
+      // Fetch the user to be deleted
+      const targetUser = await User.findById(id);
+      if (!targetUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      const targetRole = targetUser.role;
+      const currentUserRole = req.user.role;
+      // Super Admin can't delete himself (already handled above)
+      if (currentUserRole === "Super Admin") {
+        // Super Admin can delete anyone else
+      }
+      // Admin can't delete Super Admin or other Admins
+      if (currentUserRole === "Admin") {
+        if (targetRole === "Super Admin" || targetRole === "Admin") {
+          return res.status(403).json({
+            message: "You can't delete this user. Admins can only delete Supervisors and Karyakartas.",
+          });
+        }
+      }   ///....new added as per permissions
 
       const user = await User.findByIdAndUpdate(
         id,
@@ -142,7 +183,7 @@ router.delete(
         { new: true }
       );
 
-      if (!user) {
+      if (!user) {   ///....new added
         return res.status(404).json({ message: "User not found" });
       }
 
@@ -165,7 +206,7 @@ router.delete(
 router.get(
   "/by-role",
   authenticateToken,
-  authorizeRoles("Super Admin", "Supervisor", "Karyakarta"),
+  authorizeRoles("Super Admin", "Admin" ),     ///....new added as per permissions, hirarchy "Admin", "Supervisor", "Karyakarta",
   async (req, res) => {
     try {
       const { role } = req.query;

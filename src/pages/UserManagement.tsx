@@ -28,7 +28,7 @@ interface User {
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,6 +68,21 @@ export default function UserManagement() {
     e.preventDefault();
 
     try {
+      // const loggedInUser = {  ///....new added
+      //   _id: User._id,
+      //   role: "Admin" // or "Super Admin"
+      // };
+      // if (
+      //   editingUser &&
+      //   loggedInUser.role === "Admin" &&
+      //   editingUser.role === "Admin" // &&
+      //   // editingUser._id !== loggedInUser._id
+      // ) {
+      //   toast.error("Admins are not allowed to edit other Admins");
+      //   return;
+      // }  //....new added
+
+
       if (editingUser) {
         await axios.put(`/users/${editingUser._id}`, formData); //....new added id or _id
         toast.success("User updated successfully");
@@ -90,9 +105,26 @@ export default function UserManagement() {
       await axios.delete(`/users/${userId}`);
       toast.success("User deleted successfully");
       fetchUsers();
-    } catch (error) {
+    }
+    // catch (error) {
+    //   toast.error("Failed to delete user");
+    // }
+    catch (error: any) {    ///....new added
+    if (error.response) {
+      const status = error.response.status;
+      const message = error.response.data?.message || "Failed to delete user";
+
+      if (status === 400) {
+        toast.error("You cannot delete yourself.");
+      } else if (status === 403) {
+        toast.error(message); // "You can't delete this user. Admins can only delete Supervisors and Karyakartas."
+      } else {
+        toast.error(message);
+      }
+    } else {
       toast.error("Failed to delete user");
     }
+  }   ///....new added
   };
 
   const resetForm = () => {
@@ -143,7 +175,7 @@ export default function UserManagement() {
     return matchesSearch && matchesRole;
   });
 
-  const roles = ["Super Admin", "Admin", "Supervisor", "Karyakarta"];
+  const roles = [ "Admin", "Supervisor", "Karyakarta" ];   ///....new added  "Super Admin",  
 
   if (loading) {
     return (
@@ -386,7 +418,7 @@ export default function UserManagement() {
                   </label>
                   <select
                     required
-                    value={formData.role}
+                    value={formData.role} ///....new added
                     onChange={(e) =>
                       setFormData({ ...formData, role: e.target.value })
                     }

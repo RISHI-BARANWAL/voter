@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose";  ///....new added
 
 const notificationSchema = new mongoose.Schema(
   {
