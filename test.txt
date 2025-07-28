@@ -105,6 +105,7 @@ const allowedOrigins = [
   "https://thebyd.org",            // Hostinger deployed frontend
   "https://voter-phow.onrender.com" // just in case your frontend hits itself
 ];
+https://voter-fssv.onrender.com
 
 app.use(
   cors({

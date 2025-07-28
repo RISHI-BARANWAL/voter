@@ -31,7 +31,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [  ///....new added
   "http://localhost:5173",        // Local dev frontend
   "https://thebyd.org",           // Production frontend (Hostinger)
-  "https://voter-phow.onrender.com" // Optional: backend or SSR frontend
+  "https://voter-fssv.onrender.com/api" // Optional: backend or SSR frontend
 ];
 const corsOptions = {
   origin: function (origin, callback) {
