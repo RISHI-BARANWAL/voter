@@ -20,6 +20,9 @@ import {
   LogOut,
   User,
   Bell,
+  InfoIcon,
+  HomeIcon,
+  ClockIcon,
 } from "lucide-react";
 import axios from "axios";
 
@@ -61,6 +64,9 @@ export default function Layout({ children }: LayoutProps) {
       icon: Settings,
       roles: ["Super Admin", "Admin"],
     },
+    { name: 'Vilage Program', href: '/village', icon: HomeIcon, roles: ['Super Admin', 'Admin'], }, ///....new added 
+    { name: 'Appointment', href: '/appointment', icon: ClockIcon, roles: ['Super Admin', 'Admin'], }, ///....new added 
+    { name: 'Service/Complaint', href: '/service', icon: InfoIcon, roles: ['Super Admin', 'Admin'], } ///....new added 
   ];
 
   const filteredNavigation = navigation.filter(

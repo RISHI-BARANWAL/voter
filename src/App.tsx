@@ -13,6 +13,9 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AuditLogs from "./pages/AuditLogs";
 import Layout from "./components/Layout";
+import Village from './pages/Village';  ///....new added 
+import Appointment from './pages/Appointment';  ///....new added
+import Service from './pages/Service';  ///....new added
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
                       <Route path="/analytics" element={<Analytics />} />
                       <Route path="/audit-logs" element={<AuditLogs />} />
                       <Route path="/settings" element={<Settings />} />
+                      <Route path="/village" element={<Village />} /> {/* ///....new added */}
+                      <Route path="/appointment" element={<Appointment />} /> {/* ///....new added */}
+                      <Route path="/service" element={<Service />} /> {/* ///....new added */}
                     </Routes>
                   </Layout>
                 </ProtectedRoute>

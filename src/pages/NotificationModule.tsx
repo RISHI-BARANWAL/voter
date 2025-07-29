@@ -40,7 +40,7 @@ export default function NotificationModule() {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const [roles] = useState(["Supervisor", "Karyakarta", "Admin"]);  //....new added
+  const [roles] = useState(["Supervisor", "Karyakarta", "Admin", "Voter (For future)"]);  //....new added Admin and Voter (For future)
   const [selectedRole, setSelectedRole] = useState("");
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);

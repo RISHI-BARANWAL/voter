@@ -53,6 +53,9 @@ export default function VoterManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
   const [areaFilter, setAreaFilter] = useState('');
+  const [occupationFilter, setOccupationFilter] = useState(''); //....new added
+  const [casteFilter, setCasteFilter] = useState(''); //....new added
+  const [boothFilter, setBoothFilter] = useState(''); //....new added
   const [mobileFilter, setMobileFilter] = useState('');
   const [ageMin, setAgeMin] = useState('');
   const [ageMax, setAgeMax] = useState('');
@@ -96,7 +99,7 @@ export default function VoterManagement() {
     if (currentTab === 'entry' || currentTab === 'search') {
       fetchVoters();
     }
-  }, [currentTab, currentPage, searchTerm, genderFilter, areaFilter, mobileFilter, ageMin, ageMax]);
+  }, [currentTab, currentPage, searchTerm, genderFilter, areaFilter, occupationFilter, casteFilter, boothFilter, mobileFilter, ageMin, ageMax]); ///....new added occupationFilter, areaFilter, casteFilter,
 
   const fetchVoters = async () => {
     try {
@@ -107,6 +110,9 @@ export default function VoterManagement() {
         ...(searchTerm && { search: searchTerm }),
         ...(genderFilter && { gender: genderFilter }),
         ...(areaFilter && { area: areaFilter }),
+        ...(occupationFilter && { occupation: occupationFilter }), ///....new added
+        ...(casteFilter && { caste: casteFilter }), ///....new added
+        ...(boothFilter && { booth: boothFilter }), //....new added
         ...(mobileFilter && { mobile_filter: mobileFilter }),
         ...(ageMin && { age_min: ageMin }),
         ...(ageMax && { age_max: ageMax }),
@@ -299,6 +305,9 @@ export default function VoterManagement() {
     setSearchTerm('');
     setGenderFilter('');
     setAreaFilter('');
+    setOccupationFilter(''); //....new added
+    setCasteFilter(''); //....new added
+    setBoothFilter(''); //....new added
     setMobileFilter('');
     setAgeMin('');
     setAgeMax('');
@@ -386,6 +395,30 @@ export default function VoterManagement() {
             placeholder="Area/Ward"
             value={areaFilter}
             onChange={(e) => setAreaFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+
+          <input  ///....new added
+            type="text"
+            placeholder="Booth"
+            value={boothFilter}
+            onChange={(e) => setBoothFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+
+          <input  ///....new added
+            type="text"
+            placeholder="Caste"
+            value={casteFilter}
+            onChange={(e) => setCasteFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+
+          <input  ///....new added
+            type="text"
+            placeholder="Occupation"
+            value={occupationFilter}
+            onChange={(e) => setOccupationFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
 
@@ -714,6 +747,8 @@ export default function VoterManagement() {
       </div>
     );
   };
+  ///....new added
+  const castes=['पडवाशी यादव', 'तेलगू', 'कोहळे', 'पटळे', 'भडभुंजे', 'भावसार', 'कुंभार', 'माळी', 'बंजारा', 'कुणबी', 'बौद्ध', 'आदिवासी', 'MIM', 'मराठा', 'तेली', 'धनगर', 'मुस्लिम', 'गुलाल', 'बालजदूर', 'कोळी', 'गोपाल', 'पटारी', 'गोसावी', 'कोष्ट्टी', 'मनवार', 'बेलदार', 'जव्हार', 'वरटी', 'खाती', 'डाबी', 'मुळ्याची', 'भटारी', 'बगर', 'वळागोळी', 'गंगपुत्र', 'शिंपकाली', 'भाटी', 'भोई', 'चिमणी', 'पिलाजी', 'पिकलकर', 'शिंपी', 'केंजोळी', 'देवार', 'वाटेकर', 'राऊत', 'देसाई', 'शिराळकर', 'देवकाले', 'मुळगावती', 'पडवी', 'कांदेवाडी', 'भंडारी', 'प्रभाकर', 'भुजबळ', 'सुतार', 'मन्यारवाडी', 'राजपुत', 'बिलावती', 'केकाटी', 'कंदोळी', 'सरदेशी', 'चांगदेव', 'पांडवाळे', 'चाटीया', 'मारवाडी', 'मोतानी', 'कासवारी', 'केळी', 'धोबी', 'बालेदार', 'गवळी', 'तोळवेरी', 'सरपोळी', 'लांबुजणे', 'वाणी', 'हातेळी', 'संपलेरी', 'सातव', 'तांब्यावळकर', 'मोरेगांव', 'लोणार', 'सोळकर', 'मोरे', 'भांडारकर', 'कालवार', 'चाळके', 'पवार', 'पिळापूर', 'जोशी', 'तोंडली', 'माळवे', 'मनुजुरी', 'सोनबावडे', 'बापुडकर', 'मनसुने', 'कुंभारे', 'पिळे', 'बांडगे', 'दोचकी'];
 
   return (
     <div className="space-y-6">
@@ -1070,12 +1105,18 @@ export default function VoterManagement() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Caste
                     </label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.caste}
                       onChange={(e) => setFormData({...formData, caste: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    >
+                      <option value="">Select Caste</option>
+                      {/* <option value="पटळे">पटळे</option>  ///....new added */}   
+                      {castes.map((caste, i) => (
+                        <option key={i} value={caste}> {caste} </option>
+                      ))}
+                      <option value="other">Other</option>
+                    </select>
                   </div>
 
                   <div>

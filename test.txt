@@ -130,3 +130,11 @@ VITE_API_BASE_URL=http://localhost:5000/api  (backend)
 
 AuthContext.tsx:-
 const API_BASE_URL =  (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:5000/api' || 'https://thebyd.org/api' || 'https://voter-phow.onrender.com/api'; //....new added. import.meta.env.VITE_API_BASE_URL ||
+
+
+
+date:- 26/07/2025
+Search for occupationFilter in pages/VoterManagement.tsx and routes/voter.js
+pages/VoterManagement.tsx -1111 castes
+npm run build
+zip -r dist.zip dist/

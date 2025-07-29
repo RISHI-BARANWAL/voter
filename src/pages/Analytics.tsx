@@ -163,10 +163,10 @@ export default function Analytics() {
 
       {/* Chart Selection */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center space-x-4">
           <Filter className="h-5 w-5 text-gray-400" />
           <span className="text-sm font-medium text-gray-700">View:</span>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap m-2 space-x-2">   {/* ///....new added */}
             {[
               { key: 'gender', label: 'Gender Distribution', icon: PieChart },
               { key: 'age', label: 'Age Groups', icon: BarChart3 },

@@ -54,6 +54,8 @@ router.get("/", authenticateToken, async (req, res) => {
       age_min,
       age_max,
       mobile_filter,
+      caste,  ///....new added
+      occupation,  ///....new added
       is_dead,
     } = req.query;
 
@@ -63,7 +65,7 @@ router.get("/", authenticateToken, async (req, res) => {
     if (search) {
       query.$or = [
         { full_name: { $regex: search, $options: "i" } },
-        { father_husband_name: { $regex: search, $options: "i" } },
+        { father_husband_name: { $regex: search, $options: "i" } },  ///....new added change
         { mobile_number: { $regex: search, $options: "i" } },
         { voter_id: { $regex: search, $options: "i" } },
       ];
@@ -71,7 +73,9 @@ router.get("/", authenticateToken, async (req, res) => {
 
     if (gender) query.gender = gender;
     if (area) query.ward_area = { $regex: area, $options: "i" };
-    if (booth) query.booth = { $regex: booth, $options: "i" };
+    if (booth) query.booth = { $regex: booth, $options: "i" };  ///....new added
+    if (caste) query.caste = { $regex: caste, $options: "i" };  ///....new added
+    if (occupation) query.occupation = { $regex: occupation, $options: "i" };   ///....new added
     if (age_min || age_max) {
       query.age = {};
       if (age_min) query.age.$gte = parseInt(age_min);
