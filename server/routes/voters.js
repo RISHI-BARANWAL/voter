@@ -13,20 +13,25 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.memoryStorage(); // ✅ Stores file in memory as buffer.     //....new added     imp
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     const uploadDir = path.join(__dirname, '../uploads');
-//     if (!fs.existsSync(uploadDir)) {
-//       fs.mkdirSync(uploadDir, { recursive: true });
-//     }
-//     cb(null, uploadDir);
+// // New config for voter image uploads ....new added IMG (Date:06/08/2025 working)
+// const imageStorage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     const uploadPath = path.join(__dirname, "../uploads");
+//     if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+//     cb(null, uploadPath);
 //   },
-//   filename: (req, file, cb) => {
-//     cb(null, `${Date.now()}-${file.originalname}`);
-//   }
+//   filename: function (req, file, cb) {
+//     const originalName = path.parse(file.originalname).name.replace(/\s+/g, "_");
+//     const timestamp = Date.now();
+//     const extension = path.extname(file.originalname);
+//     const newFilename = `${originalName}_${timestamp}${extension}`;
+//     cb(null, newFilename);
+//   },
 // });
+// const imageUpload = multer({ storage: imageStorage }); // Use this for image uploads only
+
+// Configure multer for xlsx file uploads
+const storage = multer.memoryStorage(); // ✅ Stores file in memory as buffer.     //....new added     imp
 
 const upload = multer({
   storage,
@@ -72,7 +77,7 @@ router.get("/", authenticateToken, async (req, res) => {
     }
 
     if (gender) query.gender = gender;
-    if (area) query.ward_area = { $regex: area, $options: "i" };
+    if (area) {query.$or = [ { ward_area: { $regex: area, $options: "i" } }, { house_no: { $regex: area, $options: "i" } } ]; } //....new added search by area or house number
     if (booth) query.booth = { $regex: booth, $options: "i" };  ///....new added
     if (caste) query.caste = { $regex: caste, $options: "i" };  ///....new added
     if (occupation) query.occupation = { $regex: occupation, $options: "i" };   ///....new added
@@ -137,7 +142,8 @@ router.get("/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Create voter
+// Create voter using thing route  //....new added IMG (Date:06/08/2025 working)
+// router.post("/", authenticateToken, imageUpload.single("voter_image"), async (req, res) => {  
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const voterData = { ...req.body };
@@ -157,6 +163,11 @@ router.post("/", authenticateToken, async (req, res) => {
     }
 
     voterData.created_by = req.user._id;
+
+// // ✅ Save uploaded image filename (Date:06/08/2025 working)
+// if (req.file) { //....new added IMG
+//   voterData.voter_image = req.file.filename;
+// }
 
     const voter = await Voter.create(voterData);
 
@@ -180,7 +191,8 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
-// Update voter
+// Update voter using thing route  //....new added IMG (Date:06/08/2025 working)
+// router.put("/:id", authenticateToken, imageUpload.single("voter_image"), async (req, res) => {     
 router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -195,6 +207,18 @@ router.put("/:id", authenticateToken, async (req, res) => {
     if (!oldVoter) {
       return res.status(404).json({ message: "Voter not found" });
     }
+
+    // // ✅ Attach uploaded image file if present ....new added IMG (Date:06/08/2025 working)
+    // if (req.file) {
+    //   updateData.voter_image = req.file.filename;
+    //   // Optional: delete old image if exists
+    //   if (oldVoter.voter_image) {
+    //     const oldImagePath = path.join(__dirname, "../uploads", oldVoter.voter_image);
+    //     if (fs.existsSync(oldImagePath)) {
+    //       fs.unlinkSync(oldImagePath);
+    //     }
+    //   }
+    // }
 
     // Remove empty strings and convert age to number if provided
     Object.keys(updateData).forEach((key) => {

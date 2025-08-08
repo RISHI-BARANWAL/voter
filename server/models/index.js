@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
     full_name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String }, //....new added unique: true, required: true,
     mobile: { type: String, required: true },
     age: { type: Number },
     address: { type: String },
@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     photo: { type: String },
     designation: { type: String },
+    organisation: { type: String },  //....new added
     role: {
       type: String,
       required: true,
@@ -200,7 +201,7 @@ const levelProgramSchema = new mongoose.Schema(
     party_strength: {
       bjp: { type: Number, default: 0 },
       congress: { type: Number, default: 0 },
-      aap: { type: Number, default: 0 },
+      // aap: { type: Number, default: 0 },
       neutral: { type: Number, default: 0 },
     },
     tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],

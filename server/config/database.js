@@ -14,7 +14,8 @@ export async function connectToDatabase() {
 
   const mongoUri =
     process.env.MONGODB_URI || "mongodb+srv://david:1David123@cluster0.iflqqm2.mongodb.net/voter_management_db?retryWrites=true&w=majority&appName=Cluster0" || "mongodb://localhost:27017/voter_management_dbT";
-
+    // process.env.MONGODB_URI || "mongodb+srv://errishibaranwal:Er1Rishi@cluster0.pg11sta.mongodb.net/voter_management_db?retryWrites=true&w=majority&appName=Cluster0" || "mongodb://localhost:27017/voter_management_dbT"
+    // "mongodb://localhost:27017/voter_management_dbT";
   try {
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 10000, // fail if cannot connect in 10s
@@ -43,7 +44,7 @@ async function createDefaultAdmin() {
     const existingAdmin = await User.findOne({ role: "Super Admin" });
 
     if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash("admin123", 12);
+      const hashedPassword = await bcrypt.hash("A1SuperAdmin@123", 12);  //superadmin
 
       await User.create({
         username: "admin",
@@ -55,7 +56,7 @@ async function createDefaultAdmin() {
         is_active: true,
       });
 
-      console.log(" Default admin created (admin / admin123)");
+      // console.log(" Default admin created (admin / admin123)");  //....new added 
     }
   } catch (error) {
     console.error(" Error creating default admin:", error.message);

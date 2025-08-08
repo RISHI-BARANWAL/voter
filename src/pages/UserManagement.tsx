@@ -21,6 +21,7 @@ interface User {
   mobile: string;
   role: string;
   designation?: string;
+  organisation: string ;  //....new added
   created_at: string;
   last_login?: string;
   is_active: boolean;
@@ -45,6 +46,7 @@ export default function UserManagement() {
     dob: "",
     password: "",
     designation: "",
+    organisation: "",  //....new added
     role: "Karyakarta",
     booth_access: "",
   });
@@ -139,6 +141,7 @@ export default function UserManagement() {
       dob: "",
       password: "",
       designation: "",
+      organisation: "",  //....new added
       role: "Karyakarta",
       booth_access: "",
     });
@@ -160,6 +163,7 @@ export default function UserManagement() {
       dob: "",
       password: "",
       designation: user.designation || "",
+      organisation: user.organisation || "",  //....new added
       role: user.role,
       booth_access: "",
     });
@@ -384,11 +388,11 @@ export default function UserManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email *
+                    Email
                   </label>
                   <input
                     type="email"
-                    required
+                    // required
                     value={formData.email}
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
@@ -436,14 +440,56 @@ export default function UserManagement() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Designation
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.designation}
                     onChange={(e) =>
                       setFormData({ ...formData, designation: e.target.value })
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  >
+                    <option value="">Select Party</option>
+                      <option value="अध्यक्ष">अध्यक्ष</option>
+                      <option value="उपाध्यक्ष">उपाध्यक्ष</option>
+                      <option value="कोषाध्यक्ष">कोषाध्यक्ष</option>
+                      <option value="महासचिव">महासचिव</option>
+                      <option value="सचिव">सचिव</option>
+                      <option value="संरक्षक">संरक्षक</option>
+                      <option value="कार्यकर्ता">कार्यकर्ता</option>
+                      <option value="सदस्य">सदस्य</option>
+                      <option value="बी-एल-ए">बी-एल-ए</option>
+                      <option value="अन्य">अन्य</option>
+                      <option value="निष्पक्ष">निष्पक्ष/तटस्थ</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Organisation
+                  </label>
+                  <select
+                    value={formData.organisation}  //....new added
+                    onChange={(e) =>
+                      setFormData({ ...formData, organisation: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Select Organisation</option>
+                    <option value="जिल्हा-काँग्रेस">जिल्हा-काँग्रेस</option>
+                    <option value="तालुका-काँग्रेस">तालुका-काँग्रेस</option>
+                    <option value="शहर-काँग्रेस">शहर-काँग्रेस</option>
+                    <option value="युवक-काँग्रेस">युवक-काँग्रेस</option>
+                    <option value="महिला-काँग्रेस">महिला-काँग्रेस</option>
+                    <option value="एन-एस-यु-आय">एन-एस-यु-आय</option>
+                    <option value="सेवा-दल">सेवा-दल</option>
+                    <option value="शिक्षक-सेल">शिक्षक-सेल</option>
+                    <option value="एससी-सेल">एससी-सेल</option>
+                    <option value="एसटी-सेल">एसटी-सेल</option>
+                    <option value="ओबीसी-सेल">ओबीसी-सेल</option>
+                    <option value="अल्पसंख्यांक-सेल">अल्पसंख्यांक-सेल</option>
+                    <option value="औद्योगिक-सेल">औद्योगिक-सेल</option>
+                    <option value="परिवहन-सेल">परिवहन-सेल</option>
+                    {/* Add more organisations as needed */}
+                  </select>
                 </div>
 
                 {!editingUser && (

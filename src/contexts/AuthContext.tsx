@@ -10,6 +10,9 @@ interface User {
   email: string;
   role: string;
   designation?: string;
+  organisation?: string; //....new added
+  mobile: string; //....new added
+  dob?: string; //....new added
 }
 
 interface AuthContextType {

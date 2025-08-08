@@ -38,6 +38,7 @@ router.post(
         dob,
         password,
         designation,
+        organisation,  //....new added
         role,
         booth_access,
       } = req.body;
@@ -66,6 +67,7 @@ router.post(
         dob,
         password: hashedPassword,
         designation,
+        organisation,  //....new added
         role,
         booth_access,
       });

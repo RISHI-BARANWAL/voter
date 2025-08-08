@@ -57,7 +57,7 @@ package.json -
 
 
 
-
+Er1Rishi or mongodb+srv://errishibaranwal:Er1Rishi@cluster0.pg11sta.mongodb.net/voter_management_db?retryWrites=true&w=majority&appName=Cluster0
 # MongoDB Configuration
 MONGODB_URI=mongodb+srv://david:1David123@cluster0.iflqqm2.mongodb.net/voter_management_db?retryWrites=true&w=majority&appName=Cluster0
 DB_NAME=voter_management_db
@@ -121,9 +121,10 @@ app.use(
 );  //....new added
 
 
-database.js,
+src/contexts/AuthContext.tsx, and .env
+config/database.js, and .env
 const mongoUri = process.env.MONGODB_URI || "mongodb+srv://david:1David123@cluster0.iflqqm2.mongodb.net/voter_management_db?retryWrites=true&w=majority&appName=Cluster0" || "mongodb://localhost:27017/voter_management_dbT";
-
+.....
 
 .env -> VITE_API_BASE_URL=https://voter-phow.onrender.com/api (frontend)
 VITE_API_BASE_URL=http://localhost:5000/api  (backend)
@@ -138,3 +139,27 @@ Search for occupationFilter in pages/VoterManagement.tsx and routes/voter.js
 pages/VoterManagement.tsx -1111 castes
 npm run build
 zip -r dist.zip dist/
+git add .
+git commit -m "add search and dropdown"
+git push origin main
+
+
+Selected Image,  part-2 :- 1231 image, fileInputRef, append, handleImageSelect, imagePreview , allowedTypes, submitData, selectedImage=imageFile, FormData = new FormData, type="file", castes
+voter_image: null as File | null, {full_name : "Rss"}
+VoterManagement.tsx:- 19 32, 139-141(selectedImage, voter_image), 303-307, 634-653(ImageIcon, axios.defaults.baseURL), 785-832,
+{/* Image Upload Section */}
+${axios.defaults.baseURL  }
+<li>image</li>
+setImagePreview(`${axios.defaults.baseURL || ''}${fullVoter.voter_image}`);
+fileInputRef.current
+setSelectedImage(null);
+formData.append('voter_image', selectedImage); - 180
+
+voters.js:-  16-45(img), 646-656(/upload-image)
+config/database.js -16
+
+voter_image , store the file name using formData voter_image in the mongodb and upload the image in server/upload with the original name + voterId if available , and also comment little description of the code
+
+
+read 1st VoterManagement.tsx and voter.js, follow the same existing structure in my code VoterManagement.tsx and voter.js, and formData to save the image path or url , and the uplod of image is working in it.
+then in voter_image , store the file name using formData voter_image in the mongodb and upload the image in server/upload with the original name + voterId if available , and also comment little description of the code

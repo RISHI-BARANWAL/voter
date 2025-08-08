@@ -85,13 +85,13 @@ export default function Dashboard() {
       color: "bg-orange-500",
       change: "+5.4%",
     },
-    {
-      title: "SMS Sent",
-      value: metrics.totalSmsSent,
-      icon: MessageSquare,
-      color: "bg-purple-500",
-      change: "+12.1%",
-    },
+    // {   ///....new added
+    //   title: "SMS Sent",
+    //   value: metrics.totalSmsSent,
+    //   icon: MessageSquare,
+    //   color: "bg-purple-500",
+    //   change: "+12.1%",
+    // },
   ];
 
   const quickActions = [
@@ -144,7 +144,7 @@ export default function Dashboard() {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">  {/* lg:grid-cols-4  SMS Sent */}
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
@@ -204,6 +204,16 @@ export default function Dashboard() {
               })}
             </div>
           </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-4 p-6">  {/* ////....new added */}
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              🔒 Disclaimer ! Data Security & User Responsibility (Please Read)...
+            </h2>
+            <div className="grid grid-cols-1 gap-4">
+              All user data within this voter management system is confidential and intended solely for authorized organizational use. Any unauthorized access, sharing, or leakage of voter information by users—intentionally or unintentionally—will be considered a breach of privacy and may result in legal action or termination of access.
+              Users are responsible for maintaining the integrity and security of the data they handle, and are expected to manage all data with diligence and strict confidentiality.
+              The Company and Developer will not be held responsible for any data breach or misuse arising from the user’s end !
+            </div>
+          </div>  {/* ////....new added */}
         </div>
 
         {/* Recent Activity */}

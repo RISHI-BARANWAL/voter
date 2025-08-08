@@ -110,7 +110,7 @@ router.get('/area-summary/:area', authenticateToken, async (req, res) => {
       party_strength: {
         bjp: strengthMap.bjp || 0,
         congress: strengthMap.congress || 0,
-        aap: strengthMap.aap || 0,
+        // aap: strengthMap.aap || 0,
         neutral: strengthMap.neutral || 0
       }
     });

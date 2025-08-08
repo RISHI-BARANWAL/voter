@@ -7,6 +7,7 @@ import { connectToDatabase } from "./config/database.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import voterRoutes from "./routes/voters.js";
+// import uploadRoutes  from "./routes/upload.js";  ///....new added IMG
 import taskRoutes from "./routes/tasks.js";
 import smsRoutes from "./routes/sms.js";
 import analyticsRoutes from "./routes/analytics.js";
@@ -61,6 +62,7 @@ await connectToDatabase();
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/voters", voterRoutes);
+// app.use('/api/upload', uploadRoutes);  ///....new added IMG
 app.use("/api/tasks", taskRoutes);
 app.use("/api/sms", smsRoutes);
 app.use("/api/analytics", analyticsRoutes);
